@@ -15,9 +15,10 @@ function Login() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:3000/api/auth/login', form);
-      localStorage.setItem('token', res.data.token); // store token
-      alert('Login successful');
-      // You may redirect here if needed
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      alert(`Welcome ${user.fullName}!`);
+      // Optionally: redirect to dashboard
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }

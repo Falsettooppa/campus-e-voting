@@ -8,28 +8,69 @@ function Register() {
     password: ''
   });
 
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage('');
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/register', form);
-      alert('Registration successful!');
+      await axios.post('http://localhost:3000/api/auth/register', form);
+      setMessage('Registration successful!');
+      setForm({ fullName: '', email: '', password: '' });
     } catch (err) {
-      alert(err.response?.data?.message || 'Registration failed');
+      setMessage(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="register-page">
       <h2>Register</h2>
+      {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
-        <input name="fullName" type="text" placeholder="Full Name" onChange={handleChange} required />
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-        <button type="submit">Register</button>
+        <label>
+          Full Name:
+          <input
+            name="fullName"
+            type="text"
+            value={form.fullName}
+            onChange={handleChange}
+            required
+          />
+        </label>
+
+        <label>
+          Email:
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+        </label>
+
+        <label>
+          Password:
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </label>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
       </form>
     </div>
   );
