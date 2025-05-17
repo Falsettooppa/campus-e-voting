@@ -29,6 +29,11 @@ export const getToken = () => {
 export const logout = () => {
   localStorage.removeItem('token');
 };
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('token'); // Adjust based on how you store auth token
+};
+
+
 
 // Authenticated request helper
 export const authAxios = () => {

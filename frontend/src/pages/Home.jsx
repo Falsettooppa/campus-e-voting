@@ -1,12 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../services/authService';
 
-function Home() {
+const Home = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div>
       <h1>Welcome to Campus E-Voting Platform</h1>
-      <p>Secure, transparent and easy voting experience.</p>
+      <p>You are successfully logged in.</p>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
-}
+};
 
 export default Home;
