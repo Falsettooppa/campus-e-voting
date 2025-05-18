@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../services/authService';
 
 function Login() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: '',
     password: ''
@@ -14,11 +16,9 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/login', form);
-      const { token, user } = res.data;
-      localStorage.setItem('token', token);
-      alert(`Welcome ${user.fullName}!`);
-      // Optionally: redirect to dashboard
+      await login(form); // Call service
+      alert('Login successful');
+      navigate('/'); // Redirect to Home
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }
@@ -28,8 +28,8 @@ function Login() {
     <div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
         <button type="submit">Login</button>
       </form>
     </div>

@@ -1,20 +1,28 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { logout } from '../services/authService';
+import React, { useEffect, useState } from 'react';
+import { getUserProfile } from '../services/authService';
 
 const Home = () => {
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getUserProfile();
+        setUser(res.data);
+      } catch (err) {
+        console.error('Error fetching user:', err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (!user) return <p>Loading user data...</p>;
 
   return (
     <div>
-      <h1>Welcome to Campus E-Voting Platform</h1>
-      <p>You are successfully logged in.</p>
-      <button onClick={handleLogout}>Logout</button>
+      <h2>Welcome, {user.fullName}</h2>
+      <p>Email: {user.email}</p>
     </div>
   );
 };
