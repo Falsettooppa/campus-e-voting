@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 export const getToken = () => localStorage.getItem('token');
 
@@ -21,10 +21,21 @@ export const logout = () => {
 
 // For protected requests
 export const authAxios = axios.create({
+  baseURL: API_BASE_URL
+});
+
+authAxios.interceptors.request.use((config) => {
+  const token = getToken();
+
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   baseURL: API_BASE_URL,
   headers: {
     Authorization: `Bearer ${getToken()}`
   }
+
+  return config;
 });
 
 // Get user profile
