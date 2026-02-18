@@ -25,3 +25,5 @@ From `backend/`:
    - `node index.js`
 
 If MongoDB is not running, backend startup will fail with `ECONNREFUSED` and auth endpoints will not be available.
+
+If you see an `openUri()` error about different connection strings, ensure backend is started once and `MONGODB_URI` is defined in only one place for that process.
