@@ -27,12 +27,12 @@ export const authAxios = axios.create({
 authAxios.interceptors.request.use((config) => {
   const token = getToken();
 
+  config.headers = config.headers || {};
+
   if (token) {
-    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
-  baseURL: API_BASE_URL,
-  headers: {
-    Authorization: `Bearer ${getToken()}`
+  } else if (config.headers.Authorization) {
+    delete config.headers.Authorization;
   }
 
   return config;
