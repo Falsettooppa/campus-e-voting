@@ -12,6 +12,7 @@ dotenv.config({ quiet: true });
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/voting-db';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 let mongoConnectPromise;
 let connectedUri;
@@ -27,6 +28,13 @@ app.get('/api/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
+
+const validateConfig = () => {
+  if (!JWT_SECRET || !JWT_SECRET.trim()) {
+    throw new Error('JWT_SECRET is missing. Set it in backend/.env.');
+  }
+};
+
 // Mongo connection handler (safe singleton)
 const connectToMongo = async () => {
   if (mongoose.connection.readyState === 1) {
@@ -40,12 +48,20 @@ const connectToMongo = async () => {
   if (connectedUri && connectedUri !== MONGODB_URI) {
     throw new Error(
       `MongoDB is already connected with a different URI (${connectedUri}). ` +
+      'Stop the process and restart with a single MONGODB_URI value.'
       'Restart the server with a single MONGODB_URI value.'
     );
   }
 
   connectedUri = MONGODB_URI;
   mongoConnectPromise = mongoose.connect(MONGODB_URI);
+
+  return mongoConnectPromise;
+};
+
+const startServer = async () => {
+  try {
+    validateConfig();
   return mongoConnectPromise;
 };
 
@@ -60,6 +76,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error(`DB connection error: ${error.message}`);
+    console.error('Make sure MongoDB is running and only one MONGODB_URI is used in backend/.env.');
     process.exit(1);
   }
 };
