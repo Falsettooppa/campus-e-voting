@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const electionRoutes = require('./routes/electionRoutes');
+app.use('/api/elections', electionRoutes);
+
 
 dotenv.config({ quiet: true });
 
