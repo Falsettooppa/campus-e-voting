@@ -30,6 +30,9 @@ authAxios.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
+  baseURL: API_BASE_URL,
+  headers: {
+    Authorization: `Bearer ${getToken()}`
   }
 
   return config;
