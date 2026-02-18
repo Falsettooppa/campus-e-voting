@@ -23,6 +23,7 @@ From `backend/`:
 2. Ensure MongoDB is running locally on `127.0.0.1:27017` **or** set `MONGODB_URI` to your MongoDB instance.
 3. Set `JWT_SECRET` in `backend/.env` (required for login token signing).
 4. Start backend server:
+3. Start backend server:
    - `node index.js`
 
 If MongoDB is not running, backend startup will fail with `ECONNREFUSED` and auth endpoints will not be available.

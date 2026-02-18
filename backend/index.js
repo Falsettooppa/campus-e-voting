@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const electionRoutes = require('./routes/electionRoutes');
+app.use('/api/elections', electionRoutes);
+
 
 dotenv.config({ quiet: true });
 
@@ -32,6 +35,7 @@ const validateConfig = () => {
   }
 };
 
+// Mongo connection handler (safe singleton)
 const connectToMongo = async () => {
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
@@ -45,6 +49,7 @@ const connectToMongo = async () => {
     throw new Error(
       `MongoDB is already connected with a different URI (${connectedUri}). ` +
       'Stop the process and restart with a single MONGODB_URI value.'
+      'Restart the server with a single MONGODB_URI value.'
     );
   }
 
@@ -57,6 +62,12 @@ const connectToMongo = async () => {
 const startServer = async () => {
   try {
     validateConfig();
+  return mongoConnectPromise;
+};
+
+// Server bootstrap
+const startServer = async () => {
+  try {
     await connectToMongo();
     console.log(`MongoDB connected (${MONGODB_URI})`);
 
