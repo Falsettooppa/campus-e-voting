@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { register } from '../services/authService';
 
 function Register() {
   const [form, setForm] = useState({
@@ -19,8 +19,9 @@ function Register() {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+
     try {
-      await axios.post('http://localhost:3000/api/auth/register', form);
+      await register(form);
       setMessage('Registration successful!');
       setForm({ fullName: '', email: '', password: '' });
     } catch (err) {
