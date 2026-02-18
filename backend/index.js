@@ -49,6 +49,9 @@ const connectToMongo = async () => {
 const startServer = async () => {
   try {
     await connectToMongo();
+const startServer = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
     console.log(`MongoDB connected (${MONGODB_URI})`);
 
     app.listen(PORT, () => {
@@ -57,6 +60,7 @@ const startServer = async () => {
   } catch (error) {
     console.error(`DB connection error: ${error.message}`);
     console.error('Make sure MongoDB is running and only one MONGODB_URI is used in backend/.env.');
+    console.error('Make sure MongoDB is running or set a valid MONGODB_URI in backend/.env.');
     process.exit(1);
   }
 };
@@ -64,3 +68,10 @@ const startServer = async () => {
 startServer();
 
 module.exports = { app, startServer, connectToMongo };
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => console.error('DB connection error:', err));
