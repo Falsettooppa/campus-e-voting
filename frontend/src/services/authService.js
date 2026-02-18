@@ -1,15 +1,17 @@
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+
 export const getToken = () => localStorage.getItem('token');
 
 export const isAuthenticated = () => !!getToken();
 
 export const register = async (data) => {
-  return axios.post('http://localhost:3000/api/auth/register', data);
+  return axios.post(`${API_BASE_URL}/auth/register`, data);
 };
 
 export const login = async (data) => {
-  const res = await axios.post('http://localhost:3000/api/auth/login', data);
+  const res = await axios.post(`${API_BASE_URL}/auth/login`, data);
   localStorage.setItem('token', res.data.token);
 };
 
@@ -19,10 +21,21 @@ export const logout = () => {
 
 // For protected requests
 export const authAxios = axios.create({
-  baseURL: 'http://localhost:3000/api',
-  headers: {
-    Authorization: `Bearer ${getToken()}`
+  baseURL: API_BASE_URL
+});
+
+authAxios.interceptors.request.use((config) => {
+  const token = getToken();
+
+  config.headers = config.headers || {};
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else if (config.headers.Authorization) {
+    delete config.headers.Authorization;
   }
+
+  return config;
 });
 
 // Get user profile
