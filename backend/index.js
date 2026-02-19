@@ -2,12 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
-const electionRoutes = require('./routes/electionRoutes');
-app.use('/api/elections', electionRoutes);
-
 
 dotenv.config({ quiet: true });
+
+const authRoutes = require('./routes/auth');
+const electionRoutes = require('./routes/electionRoutes');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -23,12 +22,13 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/elections', electionRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-
+// Validate environment variables
 const validateConfig = () => {
   if (!JWT_SECRET || !JWT_SECRET.trim()) {
     throw new Error('JWT_SECRET is missing. Set it in backend/.env.');
@@ -49,7 +49,6 @@ const connectToMongo = async () => {
     throw new Error(
       `MongoDB is already connected with a different URI (${connectedUri}). ` +
       'Stop the process and restart with a single MONGODB_URI value.'
-      'Restart the server with a single MONGODB_URI value.'
     );
   }
 
@@ -59,15 +58,11 @@ const connectToMongo = async () => {
   return mongoConnectPromise;
 };
 
-const startServer = async () => {
-  try {
-    validateConfig();
-  return mongoConnectPromise;
-};
-
 // Server bootstrap
 const startServer = async () => {
   try {
+    validateConfig();
+
     await connectToMongo();
     console.log(`MongoDB connected (${MONGODB_URI})`);
 
@@ -76,7 +71,6 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error(`DB connection error: ${error.message}`);
-    console.error('Make sure MongoDB is running and only one MONGODB_URI is used in backend/.env.');
     process.exit(1);
   }
 };

@@ -1,68 +1,62 @@
 const express = require('express');
-const router = express.Router();
 const Election = require('../models/Election');
-const auth = require('../middleware/auth'); // JWT middleware
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Create Election (Admin only)
-router.post('/', auth, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
-  
+const router = express.Router();
+
+/*
+========================================
+CREATE ELECTION (Admin Only)
+========================================
+*/
+router.post('/', authMiddleware, async (req, res) => {
   try {
-    const election = new Election({
-      ...req.body,
-      createdBy: req.user._id
+    const { title, description, candidates, startDate, endDate } = req.body;
+
+    if (!title || !candidates || candidates.length === 0) {
+      return res.status(400).json({
+        message: 'Title and at least one candidate are required.'
+      });
+    }
+
+    const election = await Election.create({
+      title,
+      description,
+      candidates,
+      startDate,
+      endDate,
+      createdBy: req.user.id
     });
-    await election.save();
-    res.status(201).json(election);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+
+    return res.status(201).json(election);
+
+  } catch (error) {
+    console.error('CREATE ELECTION ERROR:', error);
+
+    return res.status(500).json({
+      message: error.message || 'Server error while creating election.'
+    });
   }
 });
 
-// Get all Elections
-router.get('/', auth, async (req, res) => {
+
+/*
+========================================
+GET ALL ELECTIONS
+========================================
+*/
+router.get('/', async (_req, res) => {
   try {
-    const elections = await Election.find().populate('candidates');
-    res.json(elections);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    const elections = await Election.find();
 
-// Get Single Election
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const election = await Election.findById(req.params.id).populate('candidates');
-    if (!election) return res.status(404).json({ message: 'Election not found' });
-    res.json(election);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    return res.status(200).json(elections);
 
-// Update Election (Admin only)
-router.put('/:id', auth, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+  } catch (error) {
+    console.error('GET ELECTIONS ERROR:', error);
 
-  try {
-    const election = await Election.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!election) return res.status(404).json({ message: 'Election not found' });
-    res.json(election);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Delete Election (Admin only)
-router.delete('/:id', auth, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
-
-  try {
-    const election = await Election.findByIdAndDelete(req.params.id);
-    if (!election) return res.status(404).json({ message: 'Election not found' });
-    res.json({ message: 'Election deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({
+      message: error.message || 'Server error.'
+    });
   }
 });
 

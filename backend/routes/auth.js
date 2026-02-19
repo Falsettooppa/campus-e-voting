@@ -5,23 +5,10 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
-  const { fullName, email, password } = req.body;
-
-  if (!fullName || !email || !password) {
-    return res.status(400).json({ message: 'Full name, email and password are required.' });
-  }
-
-  try {
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-
-    if (existingUser) {
-      return res.status(409).json({ message: 'User already exists.' });
-    }
-
-    const user = await User.create({ fullName, email, password });
 /*
+========================================
 REGISTER
+========================================
 */
 router.post('/register', async (req, res) => {
   try {
@@ -58,39 +45,10 @@ router.post('/register', async (req, res) => {
         role: user.role
       }
     });
-  } catch (error) {
-    console.error('Register error:', error.message);
-    return res.status(500).json({ message: 'Server error' });
-  }
-});
-
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required.' });
-  }
-
-  try {
-    const user = await User.findOne({ email: email.toLowerCase() });
-
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password.' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password.' });
-    }
-
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '1d'
 
   } catch (error) {
     console.error('REGISTER ERROR:', error);
 
-    // Handle duplicate key error explicitly
     if (error.code === 11000) {
       return res.status(409).json({
         message: 'Email already registered.'
@@ -105,7 +63,9 @@ router.post('/login', async (req, res) => {
 
 
 /*
+========================================
 LOGIN
+========================================
 */
 router.post('/login', async (req, res) => {
   try {
@@ -136,7 +96,7 @@ router.post('/login', async (req, res) => {
     }
 
     if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not defined in environment variables.');
+      console.error('JWT_SECRET is not defined.');
       return res.status(500).json({
         message: 'Server configuration error.'
       });
@@ -175,25 +135,6 @@ router.get('/me', authMiddleware, async (req, res) => {
       });
     }
 
-    return res.status(200).json({ token });
-  } catch (error) {
-    console.error('Login error:', error.message);
-    return res.status(500).json({ message: 'Server error' });
-  }
-});
-
-router.get('/me', authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error('Get profile error:', error.message);
-    return res.status(500).json({ message: 'Server error' });
     return res.status(200).json(user);
 
   } catch (error) {
