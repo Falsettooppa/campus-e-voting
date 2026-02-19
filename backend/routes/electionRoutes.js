@@ -184,6 +184,64 @@ router.get('/:id/voters', authMiddleware, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+/** GET ELECTION RESULTS (Only when closed) */
+router.get('/:id/results', async (req, res) => {
+  try {
+    const election = await Election.findById(req.params.id);
+
+    if (!election) {
+      return res.status(404).json({ message: 'Election not found' });
+    }
+
+    if (election.status !== 'closed') {
+      return res.status(403).json({
+        message: 'Results are only available after the election is closed.'
+      });
+    }
+
+    const votes = await Vote.find({ election: election._id });
+
+    const totalVotes = votes.length;
+
+    // Count votes per candidate
+    const counts = {};
+    for (const v of votes) {
+      const id = String(v.candidateId);
+      counts[id] = (counts[id] || 0) + 1;
+    }
+
+    const results = election.candidates.map((c) => {
+      const voteCount = counts[String(c._id)] || 0;
+      const percentage = totalVotes === 0
+        ? 0
+        : Number(((voteCount / totalVotes) * 100).toFixed(2));
+
+      return {
+        candidateId: c._id,
+        name: c.name,
+        votes: voteCount,
+        percentage
+      };
+    });
+
+    const maxVotes = Math.max(...results.map(r => r.votes), 0);
+    const winners = results.filter(r => r.votes === maxVotes && maxVotes > 0);
+
+    return res.status(200).json({
+      election: {
+        id: election._id,
+        title: election.title
+      },
+      totalVotes,
+      winners,
+      results
+    });
+
+  } catch (error) {
+    console.error('RESULTS ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 

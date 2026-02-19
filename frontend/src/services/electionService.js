@@ -61,4 +61,8 @@ export const getVotersForElection = async (electionId) => {
   const res = await axios.get(`${API_URL}/${electionId}/voters`, getConfig());
   return res.data;
 };
+export const getElectionResults = async (electionId) => {
+  const res = await axios.get(`${API_URL}/${electionId}/results`);
+  return res.data;
+};
 

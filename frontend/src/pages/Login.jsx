@@ -18,7 +18,7 @@ function Login() {
     try {
       await login(form); // Call service
       alert('Login successful');
-      navigate('/'); // Redirect to Home
+      navigate('/dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }

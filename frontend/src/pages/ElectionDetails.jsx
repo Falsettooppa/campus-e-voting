@@ -139,6 +139,14 @@ const ElectionDetails = () => {
           Voting is not allowed right now because this election is <strong>{election.status}</strong>.
         </p>
       ) : null}
+      {election.status === 'closed' && (
+  <div style={{ marginTop: 12 }}>
+    <button onClick={() => navigate(`/elections/${id}/results`)}>
+      View Results
+    </button>
+  </div>
+)}
+
 
       {hasVoted && (
         <p style={{ marginTop: 8 }}>
