@@ -26,7 +26,9 @@ function Login() {
 
   return (
     <div>
-      <h2>Login</h2>
+      {/* <h2>Login</h2> */}
+      <h2 className="text-3xl font-bold text-red-600">Login</h2>
+
       <form onSubmit={handleSubmit}>
         <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
         <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
