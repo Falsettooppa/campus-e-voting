@@ -1,44 +1,53 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+const API_URL = 'http://localhost:5000/api';
 
-export const getToken = () => localStorage.getItem('token');
-
-export const isAuthenticated = () => !!getToken();
-
-export const register = async (data) => {
-  return axios.post(`${API_BASE_URL}/auth/register`, data);
+// ==========================
+// REGISTER
+// ==========================
+export const register = async (userData) => {
+  return axios.post(`${API_URL}/auth/register`, userData);
 };
 
-export const login = async (data) => {
-  const res = await axios.post(`${API_BASE_URL}/auth/login`, data);
-  localStorage.setItem('token', res.data.token);
-};
+// ==========================
+// LOGIN
+// ==========================
+export const login = async (credentials) => {
+  const response = await axios.post(
+    `${API_URL}/auth/login`,
+    credentials
+  );
 
-export const logout = () => {
-  localStorage.removeItem('token');
-};
-
-// For protected requests
-export const authAxios = axios.create({
-  baseURL: API_BASE_URL
-});
-
-authAxios.interceptors.request.use((config) => {
-  const token = getToken();
-
-  config.headers = config.headers || {};
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else if (config.headers.Authorization) {
-    delete config.headers.Authorization;
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
   }
 
-  return config;
-});
+  return response;
+};
 
-// Get user profile
+// ==========================
+// GET USER PROFILE
+// ==========================
 export const getUserProfile = async () => {
-  return authAxios.get('/auth/me');
+  const token = localStorage.getItem('token');
+
+  return axios.get(`${API_URL}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};
+
+// ==========================
+// CHECK AUTH
+// ==========================
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
+// ==========================
+// LOGOUT
+// ==========================
+export const logout = () => {
+  localStorage.removeItem('token');
 };
