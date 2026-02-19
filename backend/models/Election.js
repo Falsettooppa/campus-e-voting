@@ -1,33 +1,21 @@
 const mongoose = require('mongoose');
 
-const electionSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const candidateSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    votes: { type: Number, default: 0 }
   },
-  description: {
-    type: String,
-    trim: true
+  { _id: true }
+);
+
+const electionSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    description: { type: String, default: '' },
+    status: { type: String, enum: ['upcoming', 'active', 'closed'], default: 'upcoming' },
+    candidates: { type: [candidateSchema], default: [] }
   },
-  startDate: {
-    type: Date,
-    required: true
-  },
-  endDate: {
-    type: Date,
-    required: true
-  },
-  candidates: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Candidate'
-    }
-  ],
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('Election', electionSchema);

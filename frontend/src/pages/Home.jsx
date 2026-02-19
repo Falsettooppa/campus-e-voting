@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getUserProfile } from '../services/authService';
 import { getAllElections } from '../services/electionService';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [elections, setElections] = useState([]);
   const [loadingElections, setLoadingElections] = useState(true);
@@ -10,11 +13,9 @@ const Home = () => {
   useEffect(() => {
     const fetchUserAndElections = async () => {
       try {
-        // Fetch user
         const userRes = await getUserProfile();
         setUser(userRes.data);
 
-        // Fetch elections
         const electionsRes = await getAllElections();
         setElections(Array.isArray(electionsRes) ? electionsRes : []);
       } catch (err) {
@@ -45,10 +46,16 @@ const Home = () => {
       ) : (
         <ul>
           {elections.map((election) => (
-            <li key={election._id} style={{ marginBottom: 10 }}>
+            <li key={election._id} style={{ marginBottom: 12 }}>
               <strong>{election.title}</strong>
               {election.description ? <div>{election.description}</div> : null}
-              {election.status ? <small>Status: {election.status}</small> : null}
+              {election.status ? <div><small>Status: {election.status}</small></div> : null}
+
+              <div style={{ marginTop: 8 }}>
+                <button onClick={() => navigate(`/elections/${election._id}`)}>
+                  View
+                </button>
+              </div>
             </li>
           ))}
         </ul>

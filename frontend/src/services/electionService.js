@@ -2,23 +2,21 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/elections';
 
-// Helper to always get fresh token
+// always get fresh token
 const getConfig = () => {
   const token = localStorage.getItem('token');
   return {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    headers: { Authorization: `Bearer ${token}` }
   };
 };
 
 export const getAllElections = async () => {
-  const res = await axios.get(API_URL, getConfig());
+  const res = await axios.get(API_URL);
   return res.data;
 };
 
 export const getElectionById = async (id) => {
-  const res = await axios.get(`${API_URL}/${id}`, getConfig());
+  const res = await axios.get(`${API_URL}/${id}`);
   return res.data;
 };
 
@@ -34,5 +32,15 @@ export const updateElection = async (id, electionData) => {
 
 export const deleteElection = async (id) => {
   const res = await axios.delete(`${API_URL}/${id}`, getConfig());
+  return res.data;
+};
+
+// ✅ NEW: Vote
+export const vote = async (electionId, candidateId) => {
+  const res = await axios.post(
+    `${API_URL}/${electionId}/vote`,
+    { candidateId },
+    getConfig()
+  );
   return res.data;
 };
