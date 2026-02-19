@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import ElectionDetails from './pages/ElectionDetails';
+import CreateElection from './pages/CreateElection';
 
 import Navbar from './components/Navbar';
 import { isAuthenticated } from './services/authService';
@@ -31,6 +32,16 @@ const AppRouter = () => (
         element={
           <ProtectedRoute>
             <ElectionDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ✅ Admin Create Election */}
+      <Route
+        path="/admin/create-election"
+        element={
+          <ProtectedRoute>
+            <CreateElection />
           </ProtectedRoute>
         }
       />
