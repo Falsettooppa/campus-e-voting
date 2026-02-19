@@ -52,4 +52,13 @@ export const updateElectionStatus = async (id, status) => {
   );
   return res.data;
 };
+export const getMyVoteStatus = async (electionId) => {
+  const res = await axios.get(`${API_URL}/${electionId}/my-vote`, getConfig());
+  return res.data;
+};
+
+export const getVotersForElection = async (electionId) => {
+  const res = await axios.get(`${API_URL}/${electionId}/voters`, getConfig());
+  return res.data;
+};
 

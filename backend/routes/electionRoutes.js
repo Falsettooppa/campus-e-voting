@@ -1,6 +1,8 @@
 const express = require('express');
 const Election = require('../models/Election');
 const authMiddleware = require('../middleware/authMiddleware');
+const Vote = require('../models/Vote');
+
 
 const router = express.Router();
 
@@ -108,7 +110,13 @@ if (election.status !== 'active') {
 });
 /** UPDATE ELECTION STATUS (Admin only for now) */
 router.patch('/:id/status', authMiddleware, async (req, res) => {
+  
   try {
+    // ✅ Admin-only
+if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+  return res.status(403).json({ message: 'Access denied. Admins only.' });
+}
+
     const { status } = req.body;
 
     if (!['upcoming', 'active', 'closed'].includes(status)) {
@@ -130,6 +138,53 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+/** HAS CURRENT USER VOTED IN THIS ELECTION? (privacy-safe) */
+router.get('/:id/my-vote', authMiddleware, async (req, res) => {
+  try {
+    const vote = await Vote.findOne({
+      election: req.params.id,
+      voter: req.user.id
+    }).select('createdAt'); // do NOT return candidateId
+
+    return res.status(200).json({
+      hasVoted: !!vote,
+      votedAt: vote ? vote.createdAt : null
+    });
+  } catch (error) {
+    console.error('MY VOTE STATUS ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+/** LIST VOTERS WHO VOTED (Admin only) */
+router.get('/:id/voters', authMiddleware, async (req, res) => {
+  try {
+    // Admin-only
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Access denied. Admins only.' });
+    }
+
+    const votes = await Vote.find({ election: req.params.id })
+      .populate('voter', 'fullName email role')
+      .sort({ createdAt: -1 });
+
+    const voters = votes.map(v => ({
+      voterId: v.voter?._id,
+      fullName: v.voter?.fullName,
+      email: v.voter?.email,
+      role: v.voter?.role,
+      votedAt: v.createdAt
+    }));
+
+    return res.status(200).json({
+      totalVotes: voters.length,
+      voters
+    });
+  } catch (error) {
+    console.error('VOTER LIST ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 module.exports = router;
