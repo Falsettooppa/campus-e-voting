@@ -44,3 +44,12 @@ export const vote = async (electionId, candidateId) => {
   );
   return res.data;
 };
+export const updateElectionStatus = async (id, status) => {
+  const res = await axios.patch(
+    `${API_URL}/${id}/status`,
+    { status },
+    getConfig()
+  );
+  return res.data;
+};
+

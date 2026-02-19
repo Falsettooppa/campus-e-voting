@@ -65,6 +65,7 @@ router.post('/:id/vote', authMiddleware, async (req, res) => {
   const election = await Election.findById(req.params.id);
 if (!election) return res.status(404).json({ message: 'Election not found' });
 
+
 // ✅ status control
 if (election.status !== 'active') {
   return res.status(403).json({
@@ -103,6 +104,30 @@ if (election.status !== 'active') {
     }
 
     return res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+/** UPDATE ELECTION STATUS (Admin only for now) */
+router.patch('/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!['upcoming', 'active', 'closed'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const election = await Election.findById(req.params.id);
+
+    if (!election) {
+      return res.status(404).json({ message: 'Election not found' });
+    }
+
+    election.status = status;
+    await election.save();
+
+    return res.status(200).json(election);
+  } catch (error) {
+    console.error('UPDATE STATUS ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

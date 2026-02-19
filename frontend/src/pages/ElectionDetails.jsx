@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getElectionById, vote } from '../services/electionService';
+import { updateElectionStatus } from '../services/electionService';
+
 
 const ElectionDetails = () => {
   const { id } = useParams();
@@ -29,13 +31,22 @@ const ElectionDetails = () => {
 
     init();
   }, [id]);
+  const changeStatus = async (newStatus) => {
+  try {
+    await updateElectionStatus(id, newStatus);
+    await fetchElection(); // refresh
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to update status');
+  }
+};
+
 
   const handleVote = async (candidateId) => {
     try {
       setVotingId(candidateId);
       await vote(id, candidateId);
       alert('Vote submitted successfully');
-      await fetchElection(); // refresh to show updated votes
+      await fetchElection(); // refresh votes
     } catch (err) {
       alert(err.response?.data?.message || 'Voting failed');
     } finally {
@@ -46,13 +57,30 @@ const ElectionDetails = () => {
   if (loading) return <p>Loading election...</p>;
   if (!election) return <p>Election not found.</p>;
 
+  // ✅ safe status check (no crash)
+  const votingOpen = election.status === 'active';
+
   return (
     <div style={{ padding: 16 }}>
       <button onClick={() => navigate(-1)}>Back</button>
 
       <h2 style={{ marginTop: 12 }}>{election.title}</h2>
       {election.description ? <p>{election.description}</p> : null}
+     
       <p><strong>Status:</strong> {election.status}</p>
+
+<div style={{ marginBottom: 12 }}>
+  <button onClick={() => changeStatus('upcoming')}>Upcoming</button>{' '}
+  <button onClick={() => changeStatus('active')}>Activate</button>{' '}
+  <button onClick={() => changeStatus('closed')}>Close</button>
+</div>
+
+
+      {!votingOpen ? (
+        <p style={{ marginTop: 8 }}>
+          Voting is not allowed right now because this election is <strong>{election.status}</strong>.
+        </p>
+      ) : null}
 
       <hr style={{ margin: '16px 0' }} />
 
@@ -69,10 +97,12 @@ const ElectionDetails = () => {
 
               <button
                 onClick={() => handleVote(c._id)}
-                disabled={votingId === c._id}
+                disabled={!votingOpen || votingId === c._id}
                 style={{ marginTop: 6 }}
               >
-                {votingId === c._id ? 'Voting...' : 'Vote'}
+                {!votingOpen
+                  ? 'Voting Closed'
+                  : (votingId === c._id ? 'Voting...' : 'Vote')}
               </button>
             </li>
           ))}
