@@ -57,27 +57,30 @@ const ElectionDetails = () => {
     }
   },[id]);
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await fetchElection();
-        const voteStatus = await getMyVoteStatus(id);
-        setHasVoted(!!voteStatus?.hasVoted);
-        setVotedAt(voteStatus?.votedAt || null);
-        const userRes = await getUserProfile();
-        const role = userRes.data?.role;
-        const admin = role === 'admin' || role === 'superadmin';
-        setIsAdmin(admin);
-        if (admin) await fetchVoters();
-      } catch (err) {
-        console.error('Init error:', err);
-        alert(err.response?.data?.message || 'Failed to load election');
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
-  }, [id]);
+useEffect(() => {
+  const init = async () => {
+    try {
+      await fetchElection();
+      const voteStatus = await getMyVoteStatus(id);
+      setHasVoted(!!voteStatus?.hasVoted);
+      setVotedAt(voteStatus?.votedAt || null);
+
+      const userRes = await getUserProfile();
+      const role = userRes.data?.role;
+      const admin = role === 'admin' || role === 'superadmin';
+      setIsAdmin(admin);
+
+      if (admin) await fetchVoters();
+    } catch (err) {
+      console.error('Init error:', err);
+      alert(err.response?.data?.message || 'Failed to load election');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  init();
+}, [id, fetchElection, fetchVoters]);
 
   const status = election?.status || 'upcoming';
   const s = STATUS[status] || STATUS.upcoming;

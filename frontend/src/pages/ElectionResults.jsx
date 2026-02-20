@@ -22,7 +22,9 @@ const ElectionResults = () => {
     }
   }, [id]);
 
-  useEffect(() => { loadResults(); }, [id]);
+  useEffect(() => {
+  loadResults();
+}, [loadResults]);
 
   const electionTitle = data?.election?.title || 'Election Results';
   const totalVotes = Number(data?.totalVotes) || 0;
