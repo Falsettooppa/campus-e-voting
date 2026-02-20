@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
+const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -118,7 +119,65 @@ router.post('/login', async (req, res) => {
     });
   }
 });
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
 
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Return same response even if user doesn't exist (prevents email enumeration)
+    if (!user) {
+      return res.status(200).json({
+        message: 'If the email exists, a reset link has been generated.'
+      });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // ✅ For project/demo: return token. In production send via email/SMS.
+    return res.status(200).json({
+      message: 'Password reset token generated.',
+      resetToken: token
+    });
+  } catch (error) {
+    console.error('FORGOT PASSWORD ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) return res.status(400).json({ message: 'New password is required.' });
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token.' });
+    }
+
+    user.password = password; // ✅ bcrypt pre-save hook will hash it
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password reset successful.' });
+  } catch (error) {
+    console.error('RESET PASSWORD ERROR:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
 
 /*
 ========================================
@@ -145,5 +204,6 @@ router.get('/me', authMiddleware, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

@@ -126,6 +126,12 @@ function Login() {
               </Link>
             </p>
           </form>
+          <p className="mt-4 text-sm text-gray-600">
+  Forgot your password?{' '}
+  <a href="/forgot-password" className="font-semibold text-blue-700 hover:underline">
+    Reset here
+  </a>
+</p>
         </div>
       </div>
     </div>

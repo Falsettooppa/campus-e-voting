@@ -52,3 +52,22 @@ export const logout = () => {
   localStorage.removeItem('token');
 };
 export const authAxios = axios.create({ baseURL: API_URL });
+// ==========================
+// AUTH AXIOS (AUTO TOKEN)
+// ==========================
+authAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+export const forgotPassword = async (email) => {
+  return axios.post(`${API_URL}/auth/forgot-password`, { email });
+};
+
+export const resetPassword = async (token, password) => {
+  return axios.post(`${API_URL}/auth/reset-password/${token}`, { password });
+};

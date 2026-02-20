@@ -9,6 +9,8 @@ import ElectionDetails from './pages/ElectionDetails';
 import CreateElection from './pages/CreateElection';
 import ElectionResults from './pages/ElectionResults';
 import AdminUsers from './pages/Dashboard/AdminUsers';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 import Navbar from './components/Navbar';
 import { isAuthenticated } from './services/authService';
@@ -83,6 +85,8 @@ const AppRouter = () => (
       {/* Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

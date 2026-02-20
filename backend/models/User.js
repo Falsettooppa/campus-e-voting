@@ -21,8 +21,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['voter', 'admin', 'superadmin'],
     default: 'voter'
-  }
+  },
+    // ✅ password reset fields
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 }, { timestamps: true });
+
 
 // Hash password before saving
 userSchema.pre('save', async function () {
@@ -36,5 +40,6 @@ userSchema.pre('save', async function () {
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
 
 module.exports = mongoose.model('User', userSchema);
