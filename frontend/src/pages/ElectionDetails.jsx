@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   getElectionById, vote, updateElectionStatus,
@@ -38,13 +38,13 @@ const ElectionDetails = () => {
   const [loadingVoters, setLoadingVoters] = useState(false);
   const [voteSuccess, setVoteSuccess] = useState(false);
 
-  const fetchElection = async () => {
+  const fetchElection = useCallback(async () => {
     const data = await getElectionById(id);
     setElection(data);
     return data;
-  };
+  }, [id]);
 
-  const fetchVoters = async () => {
+  const fetchVoters = useCallback(async () => {
     try {
       setLoadingVoters(true);
       const data = await getVotersForElection(id);
@@ -55,7 +55,7 @@ const ElectionDetails = () => {
     } finally {
       setLoadingVoters(false);
     }
-  };
+  },[id]);
 
   useEffect(() => {
     const init = async () => {
