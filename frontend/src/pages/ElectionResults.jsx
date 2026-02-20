@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getElectionResults } from '../services/electionService';
 
@@ -10,7 +10,7 @@ const ElectionResults = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadResults = async () => {
+  const loadResults = useCallback(async () => {
     try {
       setError(''); setLoading(true);
       const res = await getElectionResults(id);
@@ -20,7 +20,7 @@ const ElectionResults = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => { loadResults(); }, [id]);
 
