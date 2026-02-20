@@ -1,4 +1,5 @@
 import { authAxios } from './authService';
+const API_URL = process.env.REACT_APP_API_URL || 'https://campus-e-voting-api.onrender.com/api/users';
 
 export const getAllUsers = async (q = '') => {
   const res = await authAxios.get(`/users${q ? `?q=${encodeURIComponent(q)}` : ''}`);
