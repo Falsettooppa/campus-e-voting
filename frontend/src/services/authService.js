@@ -51,3 +51,4 @@ export const isAuthenticated = () => {
 export const logout = () => {
   localStorage.removeItem('token');
 };
+export const authAxios = axios.create({ baseURL: API_URL });

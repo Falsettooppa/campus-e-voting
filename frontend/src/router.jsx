@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import ElectionDetails from './pages/ElectionDetails';
 import CreateElection from './pages/CreateElection';
 import ElectionResults from './pages/ElectionResults';
+import AdminUsers from './pages/Dashboard/AdminUsers';
 
 import Navbar from './components/Navbar';
 import { isAuthenticated } from './services/authService';
@@ -69,6 +70,15 @@ const AppRouter = () => (
           </ProtectedRoute>
         }
       />
+      {/* Admin user management */}
+      <Route
+  path="/admin/users"
+  element={
+    <ProtectedRoute>
+      <AdminUsers />
+    </ProtectedRoute>
+  }
+/>
 
       {/* Auth */}
       <Route path="/login" element={<Login />} />

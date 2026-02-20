@@ -7,6 +7,7 @@ dotenv.config({ quiet: true });
 
 const authRoutes = require('./routes/auth');
 const electionRoutes = require('./routes/electionRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -23,10 +24,12 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/elections', electionRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
 
 // Validate environment variables
 const validateConfig = () => {

@@ -74,6 +74,7 @@ const AdminDashboard = () => {
           >
             Create Election
           </button>
+          <button onClick={() => navigate('/admin/users')}>Manage Users</button>
         </div>
 
         {/* Stats */}
