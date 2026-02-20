@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAllUsers, updateUserRole } from '../../services/userService';
 import { getUserProfile } from '../../services/authService';
 
